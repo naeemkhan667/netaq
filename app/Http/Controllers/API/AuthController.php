@@ -25,14 +25,14 @@ class AuthController extends Controller
             ]);
 
             if ($validator->fails()) {
-               return response()->json(['status' => false, 'message' => $validator->errors()], 401);
+               return response()->json(['status' => false, 'message' => $validator->errors()->first()], 401);
             }
 
             $user_input = $request->all();
             $user_input['password'] = bcrypt($user_input['password']);
             $user = User::create($user_input);
             $token = $user->createToken('netaq')->plainTextToken;
-            $data = ['name' => $user->name, 'token' => $token];
+            $data = ['name' => $user->name, 'user_id' => $user->id, 'token' => $token];
 
             return response()->json(['status' => true, 'message' => 'User successfully created', 'data' => $data], 200);
         } catch (Exception $e) {
@@ -50,7 +50,7 @@ class AuthController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return response()->json(['status' => false, 'message' => $validator->errors()], 401);
+                return response()->json(['status' => false, 'message' => $validator->errors()->first()], 401);
             }
 
             if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
