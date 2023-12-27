@@ -14,7 +14,7 @@ class CourseStatusFactory extends Factory
     public function definition()
     {
         return [
-            'status' => $this->faker->name()
+            'course_status' => $this->faker->name()
         ];
     }
 }

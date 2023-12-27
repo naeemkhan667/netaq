@@ -79,7 +79,7 @@ Route::get('/enrollment/add', [EnrollmentController::class, 'enrollment_add'])->
 Route::post('/enrollment/save', [EnrollmentController::class, 'enrollment_save'])->name('enrollment.save');
 
 Route::get('/enrollment/edit', [EnrollmentController::class, 'enrollment_edit'])->name('enrollment.edit');
-Route::post('/enrollment/update', [EnrollmentController::class, 'enrollment_update'])->name('enrollment.update');
+Route::post('/enrollment/update', [EnrollmentController::class, 'enrollment_update'])->name('enrollment.update');//
 
 
 Route::get('/enrollment/delete', [EnrollmentController::class, 'enrollment_delete'])->name('enrollment.delete');

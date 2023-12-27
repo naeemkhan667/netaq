@@ -104,24 +104,44 @@ class EnrollmentController extends Controller
 
     public function enrollment_edit(Request $request)
     {
-        $status = CourseStatus::all();
+
+
+        $course_status = CourseStatus::all();
         $users = User::all();
         $courses = Course::all();
         $data = [
             'users' => $users, 'selected_user_id' => $request->query('user_id'),
-            'courses' => $courses, 'selected_course_id' => $request->query('user_id'),
-            'status' => $status, 'selected_status_id' => $request->query('status')
+            'courses' => $courses, 'selected_course_id' => $request->query('course_id'),
+            'course_status' => $course_status, 'selected_status_id' => $request->query('course_status_id'),
+            'id' => $request->query('id')
          ];
 
-        //return view('enrollment_add', $data);
-        dd($data);
-
-        return "enrollment_edit";
+       return view('enrollment_edit', $data);
 
     }
-    public function enrollment_update()
+    public function enrollment_update(Request $request)
     {
-        return "enrollment_edit";
+        $rec_id = $request->id;
+         $enrollment_route = $this->api_base_url . "api/enrollments/".$rec_id;
+
+            try{
+                $response = Http::put($enrollment_route, [
+                    'user_id' => $request->user_id,
+                    'course_id' => $request->course_id,
+                    'course_status' => $request->status_id
+                ]);
+
+                $enrollment_response = $response->json();
+                dd($enrollment_response);
+
+                if ($enrollment_response['status'] == false) {
+                    return redirect()->back()->withErrors(['custom_error' => $enrollment_response['message']]);
+                }
+
+            }catch(Exception $e){
+                return redirect()->back()->withErrors(['custom_error' => $enrollment_response['message']]);
+            }
+            return redirect('dashboard')->with(['success' => $enrollment_response['message']]);
     }
 
     public function registration_delete()

@@ -8,6 +8,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
+use App\Models\CourseUser;
 use Illuminate\Support\Facades\DB;
 
 class EnrollmentController extends Controller
@@ -68,13 +69,15 @@ class EnrollmentController extends Controller
             $course_id = $request->course_id;
             $course_status = $request->course_status;
 
-            $results = DB::update("UPDATE course_user SET user_id = ?, course_id = ?, course_status = ?  WHERE id = ? ", [ $user_id, $course_id, $course_status, $id ]);
-            if(!$results){
-                return response()->json(['status' => false, 'message' => 'Internal Server Error']);
+            CourseUser::findOrFail($id);
+            DB::delete('delete from course_user WHERE id = ?', [$id]);
+            $results = DB::insert('INSERT INTO course_user (user_id, course_id, course_status) VALUES (?, ?, ?) ', [$user_id, $course_id, $course_status]);
+           if(!$results){
+                return response()->json(['status' => false, 'message' => 'Unknow error occured'], 500);
             }
             return response()->json(['status' => true, 'message' => 'Enrollment Successfully Updated'], 200);
         } catch (Exception $e) {
-            return response()->json(['status' => false, 'message' => 'Internal Server Error']);
+            return response()->json(['status' => false, 'message' => 'Internal Server Error'], 500);
         }
     }
 }

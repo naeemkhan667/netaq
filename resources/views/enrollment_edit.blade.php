@@ -12,7 +12,7 @@
             <div class="col-lg-7">
                 <div class="card shadow-lg border-0 rounded-lg mt-5">
                     <div class="card-header">
-                        <h3 class="text-center font-weight-light my-4">Create Enrollment</h3>
+                        <h3 class="text-center font-weight-light my-4">Edit Enrollment</h3>
                     </div>
 
                     <div class="form-floating mb-3 mx-3 mt-3">
@@ -23,10 +23,9 @@
                         @endif
                     </div>
                     <div class="card-body">
-                        <form action="{{ route('enrollment.save') }}" method="POST">
-
+                        <form action="{{ route('enrollment.update') }}" method="POST">
                             @csrf
-
+                            <input type="hidden" value="{{$id}}" name="id">
                             <div class="form-floating mb-3">
                                 <select name="user_id" id="user_id" style="width:100%; height:55px;">
                                     <option value="0">Select User</option>
@@ -41,13 +40,22 @@
                                 <select name="course_id" id="course_id" style="width:100%; height:55px;">
                                     <option value="0">Select Course</option>
                                     @foreach ($courses as $course)
-                                        <option value={{$course['id']}}>{{$course['name']}}</option>
+                                        <option value={{$course['id']}} {{$selected_course_id == $course['id'] ? 'selected' : ''}}   >{{$course['name']}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <select name="status_id" id="status_id" style="width:100%; height:55px;">
+                                    <option value="0">Select Course</option>
+                                    @foreach ($course_status as $cstatus)
+                                        <option value={{$cstatus['id']}} {{$selected_status_id == $cstatus['id'] ? 'selected' : ''}} >{{$cstatus['course_status']}}</option>
                                     @endforeach
                                 </select>
                             </div>
 
                             <div class="mt-4 mb-0">
-                               <button type="submit" class="btn btn-primary">Enroll</button>
+                               <button type="submit" class="btn btn-primary">Update Enrollment</button>
                             </div>
                         </form>
                     </div>

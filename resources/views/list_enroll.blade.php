@@ -73,7 +73,7 @@
                         <td></td>
                         <td>{{ $c['name'] }}</td>
                         <td>
-                            <a href="{{route('enrollment.edit', ['user_id' => $r['id'], 'course_id' => $c['id']])}}" class="btn btn-primary"> Edit </a>
+                            <a href="{{route('enrollment.edit', ['user_id' => $r['id'], 'course_id' => $c['id'], 'id' =>$c['pivot']['id'], 'course_status_id' => $c['pivot']['course_status'] ])}}" class="btn btn-primary"> Edit </a>
                             <a href="{{route('course.delete')}}" class="btn btn-danger"> Delete </a>
                         </td>
                     </tr>
