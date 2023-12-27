@@ -3,10 +3,6 @@
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\EnrollmentController;
 
-
-
-
-
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -33,9 +29,6 @@ Route::post('/login', [AuthController::class, 'login']);
 //create enrollment [user_id, course_id]
 Route::post('/enrollments', [EnrollmentController::class, 'store']);
 
-//update enrollment
-//Route::post('/enrollments', [EnrollmentController::class, 'update']);
-
 //Get all enrollments
 Route::get('/enrollments', [EnrollmentController::class, 'index']);
 
@@ -48,35 +41,8 @@ Route::get('/enrollments/course/{course_id}', [EnrollmentController::class, 'enr
 //Get all enrollments of a user by course_id
 Route::get('/enrollments/user/{user_id}/course/{course_id}', [EnrollmentController::class, 'enrollments_user_by_course']);
 
+//Update enrollment
 Route::put('/enrollments/{id}', [EnrollmentController::class, 'update']); //TODO:? need to make it PUT
-Route::post('/enrollments1', function(){
-    //return "hello";
 
-    //update operation
-    //$user = User::find(1);
-    //$user->courses()->sync([1,2]);
-    $user_id = 1;
-    $course_id = 1;
+Route::delete('/enrollments/{id}', [EnrollmentController::class, 'delete']);
 
-    $user = User::find($user_id);
-    $user->courses()->sync([$course_id]);
-
-    return response()->json(['success'], 200);
-
-    //new user creation
-    // $user = User::create(
-    //     ['name'=> 'newuser', 'password' => bcrypt('password'), 'email' =>'newuser@gmail.com']
-    // );
-    // $user->courses()->attach([3,4]);
-
-    return "enrollments done";
-});
-
-
-//Update Enrollment for particular user [user_id, course_id, status (Active | Completed)]
-//Route::put('/enrollments', [EnrollmentController::class, 'update']);
-
-//All Enrollments for Particular Course [course_id]
-
-
-//All Enrollments for Particular User [user_id]

@@ -20,37 +20,12 @@ use Illuminate\Support\Facades\Http;
 |
 */
 
-
-
-Route::get('/mywork',  function(){
-    $response = Http::get('http://netaq.local/api/enrollments');
-
-    /*$response->json();
-    $response->getBody();
-    $response->getBody()->getContent();*/
-
-   //var_dump($response);
-   //return "h";
-    // $url = 'http://127.0.0.1:8000/api/enrollments';
-    // $client = new \GuzzleHttp\Client();
-    // $response = $client->get($url);
-    // $response = ['hello'];
-    $res = $response->json(); // $res['message'], $res['data'], $res['data']
-   return view('test', ['data' => $response->json()]);
-
-});
-
-
-
 Route::post('/', function(Request $request){
 
     if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
         $user = Auth::user();
         $token = $user->createToken('netaq')->plainTextToken;
         $data = ['name' => $user->name, 'token' => $token];
-
-
-
         return redirect()->route('dashboard');
      } else {
         return redirect()->route('/');

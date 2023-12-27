@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
 
 class EnrollmentController extends Controller
 {
@@ -38,20 +39,30 @@ class EnrollmentController extends Controller
     {
         return view('auth.register');
     }
+
     public function dashboard(Request $request)
     {
-        //var_dump($request->all());
 
-        //$response = Http::get('http://netaq.local/api/enrollments');
-        $response = Http::get($this->api_base_url . 'api/enrollments');
+        $user_selected_id = $request->user_selected_id;
+        $course_selected_id = $request->course_selected_id;
 
-        //var_dump($response->json());
+
+        if(!empty($user_selected_id) && !empty($course_selected_id)){
+            // /enrollments/user/{user_id}/course/{course_id}
+            $url = $this->api_base_url . "api/enrollments/user/$user_selected_id/course/$course_selected_id";
+        } else if(empty($user_selected_id) && !empty($course_selected_id)){
+            // /enrollments/course/{course_id}
+            $url = $this->api_base_url . "api/enrollments/course/$course_selected_id";
+        } else if (!empty($user_selected_id) && empty($course_selected_id)){
+            // /enrollments/user/{user_id}
+            $url = $this->api_base_url . "api/enrollments/user/$user_selected_id";
+        } else {
+            $url = $this->api_base_url . 'api/enrollments';
+        }
+
+        $response = Http::get($url);
 
         if (Auth::check()) {
-
-            $user_selected_id = $request->user_selected_id;
-            $course_selected_id = $request->course_selected_id;
-
 
             $user_dd = User::select('id', 'name')->get();
             $course_dd = Course::select('id', 'name')->get();
@@ -65,6 +76,7 @@ class EnrollmentController extends Controller
         }
         return redirect()->route('login');
     }
+
     public function enrollment_registration()
     {
         return view('enrollment_registration');
@@ -76,25 +88,25 @@ class EnrollmentController extends Controller
         $data = ['users' => $users, 'courses' => $courses, 'selected_user_id' => $request->query('user_id')];
         return view('enrollment_add', $data);
     }
-    public function enrollment_save(Request $request){
-            var_dump($request->all());
-            $enrollment_route = $this->api_base_url . "api/enrollments";
-            try{
-                $response = Http::post($enrollment_route, [
-                    'user_id' => $request->user_id,
-                    'course_id' => $request->course_id
-                ]);
+    public function enrollment_save(Request $request)
+    {
+        var_dump($request->all());
+        $enrollment_route = $this->api_base_url . "api/enrollments";
+        try {
+            $response = Http::post($enrollment_route, [
+                'user_id' => $request->user_id,
+                'course_id' => $request->course_id
+            ]);
 
-                $enrollment_response = $response->json();
+            $enrollment_response = $response->json();
 
-                if ($enrollment_response['status'] == false) {
-                    return redirect()->back()->withErrors(['custom_error' => $enrollment_response['message']]);
-                }
-
-            }catch(Exception $e){
+            if ($enrollment_response['status'] == false) {
                 return redirect()->back()->withErrors(['custom_error' => $enrollment_response['message']]);
             }
-            return redirect('dashboard')->with(['success' => $enrollment_response['message']]);
+        } catch (Exception $e) {
+            return redirect()->back()->withErrors(['custom_error' => $enrollment_response['message']]);
+        }
+        return redirect('dashboard')->with(['success' => $enrollment_response['message']]);
     }
 
     public function enrollment_delete()
@@ -114,34 +126,31 @@ class EnrollmentController extends Controller
             'courses' => $courses, 'selected_course_id' => $request->query('course_id'),
             'course_status' => $course_status, 'selected_status_id' => $request->query('course_status_id'),
             'id' => $request->query('id')
-         ];
+        ];
 
-       return view('enrollment_edit', $data);
-
+        return view('enrollment_edit', $data);
     }
     public function enrollment_update(Request $request)
     {
         $rec_id = $request->id;
-         $enrollment_route = $this->api_base_url . "api/enrollments/".$rec_id;
+        $enrollment_route = $this->api_base_url . "api/enrollments/" . $rec_id;
 
-            try{
-                $response = Http::put($enrollment_route, [
-                    'user_id' => $request->user_id,
-                    'course_id' => $request->course_id,
-                    'course_status' => $request->status_id
-                ]);
+        try {
+            $response = Http::put($enrollment_route, [
+                'user_id' => $request->user_id,
+                'course_id' => $request->course_id,
+                'course_status' => $request->status_id
+            ]);
 
-                $enrollment_response = $response->json();
-                dd($enrollment_response);
+            $enrollment_response = $response->json();
 
-                if ($enrollment_response['status'] == false) {
-                    return redirect()->back()->withErrors(['custom_error' => $enrollment_response['message']]);
-                }
-
-            }catch(Exception $e){
+            if ($enrollment_response['status'] == false) {
                 return redirect()->back()->withErrors(['custom_error' => $enrollment_response['message']]);
             }
-            return redirect('dashboard')->with(['success' => $enrollment_response['message']]);
+        } catch (Exception $e) {
+            return redirect()->back()->withErrors(['custom_error' => $enrollment_response['message']]);
+        }
+        return redirect('dashboard')->with(['success' => $enrollment_response['message']]);
     }
 
     public function registration_delete()

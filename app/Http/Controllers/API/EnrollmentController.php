@@ -15,24 +15,47 @@ class EnrollmentController extends Controller
 {
     public function index(Request $request)
     {
-        $enrollments = User::with('courses')->get();
-        return response()->json(['status' => true, 'message' => 'Data successfully fetched', 'data' => $enrollments], 200);
+        try {
 
+            $enrollments = User::with('courses')->get();
+            return response()->json(['status' => true, 'message' => 'Data Successfully fetched', 'data' => $enrollments], 200);
+        } catch (Exception $e) {
+            return response()->json(['status' => false, 'message' => 'Internal Server Error'], 500);
+        }
     }
     public function enrollments_by_user(Request $request, $user_id)
     {
-        return User::with('courses')->where('id', $user_id)->get();
+        try {
+            $enrollments = User::with('courses')->where('id', $user_id)->get();
+            return response()->json(['status' => true, 'message' => 'Data Successfully fetched', 'data' => $enrollments], 200);
+        } catch (Exception $e) {
+            return response()->json(['status' => false, 'message' => 'Internal Server Error'], 500);
+        }
     }
 
     public function enrollments_by_course(Request $request, $course_id)
     {
-        return Course::with('users')->where('id', $course_id)->get();
-    }
-    public function enrollments_user_by_course(Request $request, $user_id, $course_id) {
-        return $user = User::with(['courses' => function($query) use ($course_id){
-            $query->where('courses.id', $course_id);
-        }])->where('id', $user_id)->get();
+        try {
+            $enrollments = User::whereHas('courses', function ($query) use ($course_id) {
+                $query->where('courses.id', $course_id);
+            })->with('courses')->get();
 
+
+            return response()->json(['status' => true, 'message' => 'Data Successfully fetched', 'data' => $enrollments], 200);
+        } catch (Exception $e) {
+            return response()->json(['status' => false, 'message' => 'Internal Server Error'], 500);
+        }
+    }
+    public function enrollments_user_by_course(Request $request, $user_id, $course_id)
+    {
+        try {
+            $enrollments = $user = User::with(['courses' => function ($query) use ($course_id) {
+                $query->where('courses.id', $course_id);
+            }])->where('id', $user_id)->get();
+            return response()->json(['status' => true, 'message' => 'Data Successfully fetched', 'data' => $enrollments], 200);
+        } catch (Exception $e) {
+            return response()->json(['status' => false, 'message' => 'Internal Server Error'], 500);
+        }
     }
 
     public function store(Request $request)
@@ -46,15 +69,17 @@ class EnrollmentController extends Controller
             $user_id = $request->user_id;
             $course_id = $request->course_id;
             $user = User::find($user_id);
-            $user->courses()->sync([$course_id]);
+            $user->courses()->attach([$course_id]);
+
             return response()->json(['status' => true, 'message' => 'Enrollment Successfully Created'], 201);
         } catch (Exception $e) {
-            return response()->json(['status' => false, 'message' => 'Internal Server Error']);
+            return response()->json(['status' => false, 'message' => 'Internal Server Error'], 500);
         }
     }
     public function update(Request $request, $id)
     {
         try {
+            CourseUser::findOrFail($id);
             $validator = Validator::make($request->all(), [
                 'user_id' => 'required|numeric|not_in:0',
                 'course_id' => 'required|numeric|not_in:0',
@@ -69,15 +94,28 @@ class EnrollmentController extends Controller
             $course_id = $request->course_id;
             $course_status = $request->course_status;
 
-            CourseUser::findOrFail($id);
             DB::delete('delete from course_user WHERE id = ?', [$id]);
             $results = DB::insert('INSERT INTO course_user (user_id, course_id, course_status) VALUES (?, ?, ?) ', [$user_id, $course_id, $course_status]);
-           if(!$results){
-                return response()->json(['status' => false, 'message' => 'Unknow error occured'], 500);
+            if (!$results) {
+                return response()->json(['status' => false, 'message' => 'Unknow error occured'], 404);
             }
             return response()->json(['status' => true, 'message' => 'Enrollment Successfully Updated'], 200);
         } catch (Exception $e) {
             return response()->json(['status' => false, 'message' => 'Internal Server Error'], 500);
+        }
+    }
+    public function delete(Request $request, $id)
+    {
+        try {
+
+            CourseUser::findOrFail($id);
+            $results = DB::delete('DELETE FROM course_user WHERE id = ?', [$id]);
+            if (!$results) {
+                return response()->json(['status' => false, 'message' => 'Unknow error occured'], 404);
+            }
+            return response()->json(['status' => true, 'message' => 'Enrollment Successfully Deleted'], 200);
+        } catch (Exception $e) {
+            return response()->json(['status' => false, 'message' => 'Internal Server Error'],  500);
         }
     }
 }
