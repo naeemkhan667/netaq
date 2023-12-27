@@ -48,6 +48,7 @@ Route::get('/enrollments/course/{course_id}', [EnrollmentController::class, 'enr
 //Get all enrollments of a user by course_id
 Route::get('/enrollments/user/{user_id}/course/{course_id}', [EnrollmentController::class, 'enrollments_user_by_course']);
 
+Route::post('/enrollments/{id}', [EnrollmentController::class, 'update']); //TODO:? need to make it PUT
 Route::post('/enrollments1', function(){
     //return "hello";
 
