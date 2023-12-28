@@ -7,6 +7,7 @@ use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 
@@ -36,6 +37,7 @@ class AuthController extends Controller
 
             return response()->json(['status' => true, 'message' => 'User successfully created', 'data' => $data], 200);
         } catch (Exception $e) {
+            Log::error($e->getMessage());
             return response()->json(['status' => false, 'message' => 'Internal Server Error'], 500);
         }
     }
@@ -64,6 +66,7 @@ class AuthController extends Controller
             }
 
         }catch(Exception $e){
+            Log::error($e->getMessage());
             return response()->json(['status' => false, 'message' => 'Internal Server Error'], 500);
         }
 

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
 use App\Models\CourseUser;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class EnrollmentController extends Controller
 {
@@ -17,9 +18,10 @@ class EnrollmentController extends Controller
     {
         try {
 
-            $enrollments = User::with('courses')->get();
+            $enrollments = User::with('courses')->orderby('id' ,'desc')->get();
             return response()->json(['status' => true, 'message' => 'Data Successfully fetched', 'data' => $enrollments], 200);
         } catch (Exception $e) {
+            Log::error($e->getMessage());
             return response()->json(['status' => false, 'message' => 'Internal Server Error'], 500);
         }
     }
@@ -29,6 +31,7 @@ class EnrollmentController extends Controller
             $enrollments = User::with('courses')->where('id', $user_id)->get();
             return response()->json(['status' => true, 'message' => 'Data Successfully fetched', 'data' => $enrollments], 200);
         } catch (Exception $e) {
+            Log::error($e->getMessage());
             return response()->json(['status' => false, 'message' => 'Internal Server Error'], 500);
         }
     }
@@ -43,6 +46,7 @@ class EnrollmentController extends Controller
 
             return response()->json(['status' => true, 'message' => 'Data Successfully fetched', 'data' => $enrollments], 200);
         } catch (Exception $e) {
+            Log::error($e->getMessage());
             return response()->json(['status' => false, 'message' => 'Internal Server Error'], 500);
         }
     }
@@ -54,6 +58,7 @@ class EnrollmentController extends Controller
             }])->where('id', $user_id)->get();
             return response()->json(['status' => true, 'message' => 'Data Successfully fetched', 'data' => $enrollments], 200);
         } catch (Exception $e) {
+            Log::error($e->getMessage());
             return response()->json(['status' => false, 'message' => 'Internal Server Error'], 500);
         }
     }
@@ -73,6 +78,7 @@ class EnrollmentController extends Controller
 
             return response()->json(['status' => true, 'message' => 'Enrollment Successfully Created'], 201);
         } catch (Exception $e) {
+            Log::error($e->getMessage());
             return response()->json(['status' => false, 'message' => 'Internal Server Error'], 500);
         }
     }
@@ -101,13 +107,14 @@ class EnrollmentController extends Controller
             }
             return response()->json(['status' => true, 'message' => 'Enrollment Successfully Updated'], 200);
         } catch (Exception $e) {
+            Log::error($e->getMessage());
             return response()->json(['status' => false, 'message' => 'Internal Server Error'], 500);
         }
     }
-    public function delete(Request $request, $id)
+    public function enrollment_delete(Request $request, $id)
     {
+        //dd($request->all());
         try {
-
             CourseUser::findOrFail($id);
             $results = DB::delete('DELETE FROM course_user WHERE id = ?', [$id]);
             if (!$results) {
@@ -115,6 +122,20 @@ class EnrollmentController extends Controller
             }
             return response()->json(['status' => true, 'message' => 'Enrollment Successfully Deleted'], 200);
         } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json(['status' => false, 'message' => 'Internal Server Error'],  500);
+        }
+    }
+    public function registration_delete(Request $request, $id){
+        try {
+            User::findOrFail($id);
+            $results = DB::delete('DELETE FROM users WHERE id = ?', [$id]);
+            if (!$results) {
+                return response()->json(['status' => false, 'message' => 'Unknow error occured'], 404);
+            }
+            return response()->json(['status' => true, 'message' => 'Registration Successfully Deleted'], 200);
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
             return response()->json(['status' => false, 'message' => 'Internal Server Error'],  500);
         }
     }

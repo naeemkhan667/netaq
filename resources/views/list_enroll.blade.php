@@ -56,6 +56,8 @@
                     <td>
                         <a href="{{ route('enrollment.add', ['user_id' => $r['id']]) }}"
                             class="btn btn-success">Enrollment</a>
+                         <a href="{{ route('enrollment.registration.delete', ['user_id' => $r['id']]) }}"
+                            class="btn btn-danger" onclick="return confirm('Are you sure to delete this entry?')" >Delete</a>
                     </td>
                 </tr>
 
@@ -77,7 +79,9 @@
                         <td>
                             <a href="{{ route('enrollment.edit', ['user_id' => $r['id'], 'course_id' => $c['id'], 'id' => $c['pivot']['id'], 'course_status_id' => $c['pivot']['course_status']]) }}"
                                 class="btn btn-primary btn-sm "> Edit </a>
-                            <a href="{{ route('course.delete') }}" class="btn btn-danger btn-sm"> Delete </a>
+                            <a href="{{ route('enrollment.delete', [ 'id' => $c['pivot']['id'] ] ) }}" class="btn btn-danger btn-sm"
+                                onclick="return confirm('Are you sure to delete this entry?')"
+                            > Delete </a>
                         </td>
                     </tr>
                 @endforeach

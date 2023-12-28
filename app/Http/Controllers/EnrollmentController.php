@@ -10,25 +10,49 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
+
 
 class EnrollmentController extends Controller
 {
 
     private $api_base_url = "http://netaq.local/";
+
+    public function __construct()
+    {
+
+    }
+
+    public function api_token(){
+        return session('api_token');
+    }
     public function index()
     {
         if (Auth::check()) {
+
             return redirect()->route('dashboard');
         }
         return view('auth.login');
     }
     public function login()
     {
+        //dd('here....');
         if (Auth::check()) {
             return redirect()->route('dashboard');
         }
         return view('auth.login');
+    }
+    public function authenticate(Request $request){
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            $user = Auth::user();
+            $token = $user->createToken('netaq')->plainTextToken;
+            $data = ['name' => $user->name, 'token' => $token];
+            session(['api_token' => $token]);
+            return redirect()->route('dashboard');
+        } else {
+            return redirect()->route('/');
+        }
+
     }
     public function logout()
     {
@@ -47,20 +71,22 @@ class EnrollmentController extends Controller
         $course_selected_id = $request->course_selected_id;
 
 
-        if(!empty($user_selected_id) && !empty($course_selected_id)){
+        if (!empty($user_selected_id) && !empty($course_selected_id)) {
             // /enrollments/user/{user_id}/course/{course_id}
             $url = $this->api_base_url . "api/enrollments/user/$user_selected_id/course/$course_selected_id";
-        } else if(empty($user_selected_id) && !empty($course_selected_id)){
+        } else if (empty($user_selected_id) && !empty($course_selected_id)) {
             // /enrollments/course/{course_id}
             $url = $this->api_base_url . "api/enrollments/course/$course_selected_id";
-        } else if (!empty($user_selected_id) && empty($course_selected_id)){
+        } else if (!empty($user_selected_id) && empty($course_selected_id)) {
             // /enrollments/user/{user_id}
             $url = $this->api_base_url . "api/enrollments/user/$user_selected_id";
         } else {
             $url = $this->api_base_url . 'api/enrollments';
         }
 
-        $response = Http::get($url);
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->api_token()
+        ])->get($url);
 
         if (Auth::check()) {
 
@@ -90,10 +116,12 @@ class EnrollmentController extends Controller
     }
     public function enrollment_save(Request $request)
     {
-        var_dump($request->all());
+        //var_dump($request->all());
         $enrollment_route = $this->api_base_url . "api/enrollments";
         try {
-            $response = Http::post($enrollment_route, [
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->api_token()
+            ])->post($enrollment_route, [
                 'user_id' => $request->user_id,
                 'course_id' => $request->course_id
             ]);
@@ -105,18 +133,37 @@ class EnrollmentController extends Controller
             }
         } catch (Exception $e) {
             return redirect()->back()->withErrors(['custom_error' => $enrollment_response['message']]);
+            Log::error($e->getMessage());
         }
         return redirect('dashboard')->with(['success' => $enrollment_response['message']]);
     }
 
-    public function enrollment_delete()
+
+    public function enrollment_delete(Request $request)
     {
-        return "enrollment_delete";
+
+        $id = $request->id;
+        $enrollment_route = $this->api_base_url . "api/enrollments/" . $id;
+
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->api_token()
+            ])->delete($enrollment_route);
+
+            $enrollment_response = $response->json();
+
+            if ($enrollment_response['status'] == false) {
+                return redirect()->back()->withErrors(['custom_error' => $enrollment_response['message']]);
+            }
+        } catch (Exception $e) {
+            return redirect()->back()->withErrors(['custom_error' => $enrollment_response['message']]);
+            Log::error($e->getMessage());
+        }
+        return redirect('dashboard')->with(['success' => $enrollment_response['message']]);
     }
 
     public function enrollment_edit(Request $request)
     {
-
 
         $course_status = CourseStatus::all();
         $users = User::all();
@@ -136,7 +183,10 @@ class EnrollmentController extends Controller
         $enrollment_route = $this->api_base_url . "api/enrollments/" . $rec_id;
 
         try {
-            $response = Http::put($enrollment_route, [
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->api_token()
+            ])->put($enrollment_route, [
                 'user_id' => $request->user_id,
                 'course_id' => $request->course_id,
                 'course_status' => $request->status_id
@@ -149,22 +199,42 @@ class EnrollmentController extends Controller
             }
         } catch (Exception $e) {
             return redirect()->back()->withErrors(['custom_error' => $enrollment_response['message']]);
+            Log::error($e->getMessage());
         }
         return redirect('dashboard')->with(['success' => $enrollment_response['message']]);
     }
 
-    public function registration_delete()
+    public function enrollment_registration_delete(Request $request)
     {
-        return "registration_delete";
+
+        $rec_id = $request->user_id;
+        $enrollment_route = $this->api_base_url . "api/enrollments/registration/" . $rec_id;
+
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->api_token()
+            ])->delete($enrollment_route);
+
+            $enrollment_response = $response->json();
+
+            if ($enrollment_response['status'] == false) {
+                return redirect()->back()->withErrors(['custom_error' => $enrollment_response['message']]);
+            }
+        } catch (Exception $e) {
+            return redirect()->back()->withErrors(['custom_error' => $enrollment_response['message']]);
+            Log::error($e->getMessage());
+        }
+        return redirect('dashboard')->with(['success' => $enrollment_response['message']]);
     }
     public function enrollment_registration_save(Request $request)
     {
 
-        $enrollment_route = $this->api_base_url . "api/enrollments";
         $register_route = $this->api_base_url . "api/register";
 
         try {
-            $response = Http::post($register_route, [
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->api_token()
+            ])->post($register_route, [
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => $request->password,
@@ -176,22 +246,10 @@ class EnrollmentController extends Controller
             if ($registration_response['status'] == false) {
                 return redirect()->back()->withErrors(['custom_error' => $registration_response['message']]);
             }
-
-
-            $user_id = $registration_response['data']['user_id'];
-            $course_id = $request->course_id;
-
-            $enrollment_response = Http::post($enrollment_route, [
-                'user_id' => $user_id,
-                'course_id' => $course_id
-            ]);
-
-            if ($enrollment_response['status'] == false) {
-                return redirect()->back()->withErrors(['custom_error' => $enrollment_response['message']]);
-            }
         } catch (Exception $e) {
-            return redirect()->back()->withErrors(['custom_error' => "Internal Server Error"]);
+            Log::error($e->getMessage());
+            return redirect()->back()->withErrors(['custom_error' => $e->getMessage()]);
         }
-        return redirect()->route('dashboard')->with('success', 'Enrollment successfully created');
+        return redirect()->route('dashboard')->with('success', 'Registration Successfully Created');
     }
 }

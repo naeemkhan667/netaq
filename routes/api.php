@@ -23,26 +23,36 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+//public routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-//create enrollment [user_id, course_id]
-Route::post('/enrollments', [EnrollmentController::class, 'store']);
+//Authenticated routes
+Route::middleware('auth:sanctum')->prefix('enrollments')->group(function () {
 
-//Get all enrollments
-Route::get('/enrollments', [EnrollmentController::class, 'index']);
+    //create enrollment [user_id, course_id]
+    Route::post('/', [EnrollmentController::class, 'store']);//TODO? needd to check enrollments shouldn't be here
 
-//Get all enrollments with course_id
-Route::get('/enrollments/user/{user_id}', [EnrollmentController::class, 'enrollments_by_user']);
+    //Get all enrollments
+    Route::get('/', [EnrollmentController::class, 'index']);
 
-//Get all enrollments with user_id
-Route::get('/enrollments/course/{course_id}', [EnrollmentController::class, 'enrollments_by_course']);
+    //Get all enrollments with course_id
+    Route::get('/user/{user_id}', [EnrollmentController::class, 'enrollments_by_user']);
 
-//Get all enrollments of a user by course_id
-Route::get('/enrollments/user/{user_id}/course/{course_id}', [EnrollmentController::class, 'enrollments_user_by_course']);
+    //Get all enrollments with user_id
+    Route::get('/course/{course_id}', [EnrollmentController::class, 'enrollments_by_course']);
 
-//Update enrollment
-Route::put('/enrollments/{id}', [EnrollmentController::class, 'update']); //TODO:? need to make it PUT
+    //Get all enrollments of a user by course_id
+    Route::get('/user/{user_id}/course/{course_id}', [EnrollmentController::class, 'enrollments_user_by_course']);
 
-Route::delete('/enrollments/{id}', [EnrollmentController::class, 'delete']);
+    //Update enrollment
+    Route::put('/{id}', [EnrollmentController::class, 'update']); //TODO:? need to make it PUT
 
+    //Deleting an enrollment
+    Route::delete('/{id}', [EnrollmentController::class, 'enrollment_delete']);
+
+    //Deleting a registration
+    //Route::delete('/registration/{id}', [EnrollmentController::class, 'registration_delete']);
+    Route::delete('/registration/{id}', [EnrollmentController::class, 'registration_delete']);
+
+});
