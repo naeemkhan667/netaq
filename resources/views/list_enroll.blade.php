@@ -10,7 +10,7 @@
         <div class="row">
             <div class="col-md-6">
                 <div>
-                    <a href="{{ route('enrollment.registration') }}" class="btn btn-primary mb-3">New Enrollment</a>
+                    <a href="{{ route('enrollment.registration') }}" class="btn btn-primary mb-3">User Registration</a>
 
                 </div>
             </div>
@@ -49,7 +49,7 @@
 
         <tbody>
             @foreach ($results['data'] as $r)
-                <tr class="table-success">
+                <tr class="table-secondary">
                     <td>{{ $r['name'] }}</td>
                     <td>{{ $r['email'] }}</td>
                     <td></td>
@@ -60,7 +60,7 @@
                 </tr>
 
                 @foreach ($r['courses'] as $c)
-                    <tr class="table-active">
+                    <tr class="table-light">
                         <td></td>
                         <td></td>
                         <td>
@@ -85,4 +85,5 @@
 
         </tbody>
     </table>
+
 </div>

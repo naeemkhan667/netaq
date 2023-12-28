@@ -2,9 +2,9 @@
 <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
     <div class="sb-sidenav-menu">
         <div class="nav">
-            <div class="sb-sidenav-menu-heading">Enrollments</div>
+            <div class="sb-sidenav-menu-heading">Main Menu</div>
             <a class="nav-link" href="{{route('login')}}">
-                <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                <div class="sb-nav-link-icon"><i class="fas fa-list-alt"></i></div>
                 Enrollments
             </a>
         </div>

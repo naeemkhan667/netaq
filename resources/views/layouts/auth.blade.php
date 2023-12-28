@@ -26,7 +26,7 @@
 
 </head>
 
-<body class="sb-nav-fixed bg-primary">
+<body class="sb-nav-fixed">
     @yield('navbar')
 
 
