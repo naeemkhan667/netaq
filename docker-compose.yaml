@@ -1,26 +1,15 @@
 version: '3.8'
 services:
 
-    # Application
+    # Application & web server
     app:
         build:
             context: .
-            dockerfile: ./docker/app.dockerfile
         working_dir: /var/www
         volumes:
             - ./:/var/www
         depends_on:
             - "database"
-    # Web Server
-    web:
-        build:
-            context: .
-            dockerfile: ./docker/web.dockerfile
-        working_dir: /var/www
-        volumes:
-            - ./:/var/www
-        depends_on:
-            - "app"
         ports:
             - 80:80
     # Database
@@ -30,11 +19,9 @@ services:
             - dbdata:/var/lib/mysql
         environment:
             MYSQL_DATABASE: ${DB_DATABASE}
-            MYSQL_PASSWORD: ${DB_PASSWORD}
             MYSQL_USER: ${DB_USERNAME}
-            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD1}
-            MYSQL_ALLOW_EMPTY_PASSWORD: ${DB_PASSWORD}
-            MYSQL_RANDOM_ROOT_PASSWORD: ${DB_PASSWORD}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
         ports:
             - "33061:3306"
     # Database management
