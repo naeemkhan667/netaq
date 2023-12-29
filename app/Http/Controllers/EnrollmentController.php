@@ -16,11 +16,11 @@ use Illuminate\Support\Facades\Log;
 class EnrollmentController extends Controller
 {
 
-    private $api_base_url = "http://netaq.local/";
+    private $api_base_url = "";
 
     public function __construct()
     {
-
+        $this->api_base_url = url('/') . "/";
     }
 
     public function api_token(){
@@ -67,6 +67,7 @@ class EnrollmentController extends Controller
     public function dashboard(Request $request)
     {
 
+
         $user_selected_id = $request->user_selected_id;
         $course_selected_id = $request->course_selected_id;
 
@@ -87,6 +88,7 @@ class EnrollmentController extends Controller
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->api_token()
         ])->get($url);
+
 
         if (Auth::check()) {
 
