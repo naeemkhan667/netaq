@@ -56,3 +56,8 @@ Route::middleware('auth:sanctum')->prefix('enrollments')->group(function () {
     Route::delete('/registration/{id}', [EnrollmentController::class, 'registration_delete']);
 
 });
+
+//Handle bad rotues
+Route::any('{any}', function(){
+    return response()->json(['status' => false, 'message'   => 'Page not Found.'], 404);
+})->where('any', '.*');
