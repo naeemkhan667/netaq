@@ -56,6 +56,23 @@ authorized users.
 - php artisan db:seed
 - php artisan serve
 
+## Setting and running docker
+
+- git clone https://github.com/naeemkhan667/netaq.git
+- Go inside netaq directory
+- Rename .env.netaq.docker => .env
+- docker-compose up
+- docker exec -it web-server /bin/bash
+- composer install
+- php artisan migrate
+- php artisan db:seed
+
+Run the web-server in browser and it should redirect to http://localhost/login
+
+Enter the credentials
+    User:   user1@gmail.com
+    Pass:   password
+
 ## Access the APIs on the specified 
 - Project documentation link
   https://documenter.getpostman.com/view/28072428/2s9YkuaeXm
