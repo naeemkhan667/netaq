@@ -6,6 +6,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
+        container_name: web-server
         working_dir: /var/www
         volumes:
             - ./:/var/www
@@ -16,6 +17,7 @@ services:
     # Database
     database:
         image: mysql:8.0
+        container_name: database-server
         volumes:
             - dbdata:/var/lib/mysql
         environment:
