@@ -11,6 +11,8 @@ RUN apt-get update && apt-get install -y  \
     && docker-php-ext-install pdo_mysql -j$(nproc) gd \
     && apt-get autoclean -y \
     && rm -rf /var/lib/apt/lists/*
+# Install Composer globally.
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Update apache conf to point to application public directory
 ENV APACHE_DOCUMENT_ROOT=/var/www/public
