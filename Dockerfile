@@ -5,6 +5,9 @@ RUN apt-get update && apt-get install -y  \
     libjpeg-dev \
     libpng-dev \
     libwebp-dev \
+    zip \
+    unzip \
+    git \
     --no-install-recommends \
     && docker-php-ext-enable opcache \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
